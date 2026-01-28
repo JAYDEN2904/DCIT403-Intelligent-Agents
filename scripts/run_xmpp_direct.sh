@@ -13,10 +13,14 @@ if pgrep -x prosody > /dev/null; then
 fi
 
 # Create necessary directories
-sudo mkdir -p /var/lib/prosody
-sudo mkdir -p /var/log/prosody
-sudo chown -R prosody:prosody /var/lib/prosody /var/log/prosody 2>/dev/null || true
+mkdir -p /tmp/prosody-data
+mkdir -p /tmp/prosody-logs
 
-# Run Prosody as prosody user (not root)
-echo "✅ Starting Prosody as prosody user..."
-sudo -u prosody prosody
+# Check if prosody user exists, if not run as current user
+if id "prosody" &>/dev/null; then
+    echo "✅ Starting Prosody as prosody user..."
+    sudo -u prosody prosody 2>/dev/null || prosody
+else
+    echo "✅ Starting Prosody as current user..."
+    prosody
+fi
