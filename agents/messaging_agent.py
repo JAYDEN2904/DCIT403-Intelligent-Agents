@@ -11,11 +11,15 @@ Before running:
 """
 
 import asyncio
+import warnings
 from spade.agent import Agent
 from spade.behaviour import CyclicBehaviour, OneShotBehaviour
 from spade.message import Message
 from spade.template import Template
 from datetime import datetime
+
+# Disable SSL certificate verification warnings for local development
+warnings.filterwarnings('ignore', message='.*certificate.*')
 
 
 def get_agent_name(agent):
@@ -40,24 +44,24 @@ class SenderAgent(Agent):
         async def run(self):
             agent_name = get_agent_name(self.agent)
             print(f"📤 [{agent_name}] Starting to send messages...")
-            
+
             messages = [
                 "Hello from the sender agent!",
                 "This is message number 2",
                 "And here's the third message",
                 "STOP"  # Signal to stop
             ]
-            
+
             for i, content in enumerate(messages, 1):
                 msg = Message(to=self.receiver_jid)
                 msg.set_metadata("performative", "inform")
                 msg.set_metadata("message_id", str(i))
                 msg.body = content
-                
+
                 await self.send(msg)
                 print(f"   → Sent message {i}: '{content}'")
                 await asyncio.sleep(1)
-            
+
             print(f"📤 [{agent_name}] All messages sent!")
             await asyncio.sleep(2)
             await self.agent.stop()
@@ -81,20 +85,20 @@ class ReceiverAgent(Agent):
 
         async def run(self):
             agent_name = get_agent_name(self.agent)
-            
+
             # Wait for a message (timeout after 10 seconds)
             msg = await self.receive(timeout=10)
-            
+
             if msg:
                 sender = str(msg.sender)
                 content = msg.body
                 msg_id = msg.get_metadata("message_id")
-                
+
                 timestamp = datetime.now().strftime('%H:%M:%S')
                 print(f"📥 [{agent_name}] Received at {timestamp}:")
                 print(f"   From: {sender}")
                 print(f"   Message #{msg_id}: '{content}'")
-                
+
                 # Check for stop signal
                 if content == "STOP":
                     print(f"🛑 [{agent_name}] Received stop signal")
@@ -106,11 +110,11 @@ class ReceiverAgent(Agent):
     async def setup(self):
         agent_name = get_agent_name(self)
         print(f"🚀 [{agent_name}] Receiver agent started, waiting for messages...")
-        
+
         # Create a template to filter messages
         template = Template()
         template.set_metadata("performative", "inform")
-        
+
         behaviour = self.ReceiveBehaviour()
         self.add_behaviour(behaviour, template)
 
@@ -129,17 +133,16 @@ async def main():
 
     try:
         # Start receiver first (so it's ready to receive)
-        # auto_register=True to skip manual credential creation
         await receiver.start(auto_register=True)
         await asyncio.sleep(1)
-        
+
         # Start sender
         await sender.start(auto_register=True)
-        
+
         # Wait for both agents to complete
         while receiver.is_alive() or sender.is_alive():
             await asyncio.sleep(1)
-            
+
     except KeyboardInterrupt:
         print("\n⚠️ Interrupted by user")
     except Exception as e:

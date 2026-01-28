@@ -12,9 +12,15 @@ Before running this agent:
 """
 
 import asyncio
+import os
+import ssl
+import warnings
 from spade.agent import Agent
 from spade.behaviour import CyclicBehaviour, OneShotBehaviour
 from datetime import datetime
+
+# Suppress SSL warnings for local development
+warnings.filterwarnings('ignore')
 
 
 class BasicAgent(Agent):
@@ -29,7 +35,8 @@ class BasicAgent(Agent):
 
         async def run(self):
             agent_name = str(self.agent.jid).split('@')[0]
-            print(f"🚀 [{agent_name}] Agent started at {datetime.now().strftime('%H:%M:%S')}")
+            print(
+                f"🚀 [{agent_name}] Agent started at {datetime.now().strftime('%H:%M:%S')}")
             print(f"   JID: {self.agent.jid}")
             print(f"   Available: {self.agent.is_alive()}")
 
@@ -49,13 +56,14 @@ class BasicAgent(Agent):
             agent_name = str(self.agent.jid).split('@')[0]
             timestamp = datetime.now().strftime('%H:%M:%S')
             print(f"💓 [{agent_name}] Heartbeat #{self.counter} at {timestamp}")
-            
+
             # Stop after 5 heartbeats for demonstration
             if self.counter >= 5:
-                print(f"🛑 [{agent_name}] Stopping after {self.counter} heartbeats")
+                print(
+                    f"🛑 [{agent_name}] Stopping after {self.counter} heartbeats")
                 self.kill()
                 await self.agent.stop()
-            
+
             await asyncio.sleep(self.period)
 
         async def on_end(self):
@@ -89,18 +97,18 @@ async def main():
     password = "290405"
 
     print(f"🔌 Connecting agent: {jid}")
-    
+
     # Create the agent
     agent = BasicAgent(jid, password)
 
     try:
         # Start the agent with auto_register to skip manual credential creation
         await agent.start(auto_register=True)
-        
+
         # Wait for agent to complete its behaviors
         while agent.is_alive():
             await asyncio.sleep(1)
-            
+
     except KeyboardInterrupt:
         print("\n⚠️ Interrupted by user")
     except Exception as e:

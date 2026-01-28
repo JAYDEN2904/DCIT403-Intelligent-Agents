@@ -15,12 +15,16 @@ Before running this agent:
 import asyncio
 import os
 import random
+import warnings
 from dataclasses import dataclass, asdict
 from datetime import datetime
 from typing import Dict, Any
 
 from spade.agent import Agent
 from spade.behaviour import CyclicBehaviour
+
+# Disable SSL certificate verification warnings for local development
+warnings.filterwarnings('ignore', message='.*certificate.*')
 
 
 # ---------- Simulated Disaster Environment ----------
@@ -63,9 +67,11 @@ class DisasterEnvironment:
         delta_water = random.uniform(-0.1, 0.5)
         delta_fire = random.randint(-5, 20)
 
-        self.state.damage_severity = min(100, self.state.damage_severity + delta_damage)
+        self.state.damage_severity = min(
+            100, self.state.damage_severity + delta_damage)
         self.state.water_level = max(0.0, self.state.water_level + delta_water)
-        self.state.fire_risk = max(0, min(100, self.state.fire_risk + delta_fire))
+        self.state.fire_risk = max(
+            0, min(100, self.state.fire_risk + delta_fire))
 
         # Accessibility decreases as damage grows
         if self.state.damage_severity > 70 or self.state.water_level > 1.0:
@@ -93,7 +99,8 @@ class SensorAgent(Agent):
             # Prepare logging directory / file
             os.makedirs("logs", exist_ok=True)
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            self.log_file = os.path.join("logs", f"sensor_events_{timestamp}.log")
+            self.log_file = os.path.join(
+                "logs", f"sensor_events_{timestamp}.log")
 
         async def log_event(self, percept: Dict[str, Any]) -> None:
             """
@@ -118,7 +125,8 @@ class SensorAgent(Agent):
             }
 
             # 3. Print a human-readable log to the console
-            print(f"👁️  [{agent_name}] Percept #{self.step_count} at {timestamp}")
+            print(
+                f"👁️  [{agent_name}] Percept #{self.step_count} at {timestamp}")
             print(
                 f"   Damage: {state.damage_severity:3d} | "
                 f"Water: {state.water_level:4.2f} m | "
@@ -131,7 +139,8 @@ class SensorAgent(Agent):
 
             # 5. Optionally, stop after some number of steps
             if self.step_count >= self.max_steps:
-                print(f"🛑 [{agent_name}] Reached {self.max_steps} percepts, stopping agent.")
+                print(
+                    f"🛑 [{agent_name}] Reached {self.max_steps} percepts, stopping agent.")
                 self.kill()
                 await self.agent.stop()
                 return
@@ -151,7 +160,8 @@ class SensorAgent(Agent):
         env = DisasterEnvironment()
 
         # Period in seconds between perceptions; adjust as needed
-        behaviour = self.SenseEnvironmentBehaviour(env=env, period=2, max_steps=20)
+        behaviour = self.SenseEnvironmentBehaviour(
+            env=env, period=2, max_steps=20)
         self.add_behaviour(behaviour)
 
 
@@ -166,7 +176,7 @@ async def main():
     agent = SensorAgent(jid, password)
 
     try:
-        # Start with auto_register to skip manual credential creation
+        # Start the agent with auto_register to skip manual credential creation
         await agent.start(auto_register=True)
 
         # Keep the script alive while the agent is running
@@ -189,5 +199,3 @@ if __name__ == "__main__":
     import spade
     # Use SPADE's embedded XMPP server to avoid certificate issues
     spade.run(main())
-
-
