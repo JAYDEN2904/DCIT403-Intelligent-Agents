@@ -17,6 +17,6 @@ sudo mkdir -p /var/lib/prosody
 sudo mkdir -p /var/log/prosody
 sudo chown -R prosody:prosody /var/lib/prosody /var/log/prosody 2>/dev/null || true
 
-# Run Prosody in foreground
-echo "✅ Starting Prosody..."
-sudo prosody
+# Run Prosody as prosody user (not root)
+echo "✅ Starting Prosody as prosody user..."
+sudo -u prosody prosody
