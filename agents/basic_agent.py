@@ -8,7 +8,7 @@ A simple SPADE agent that demonstrates:
 
 Before running this agent:
 1. Start the XMPP server: ./scripts/start_xmpp.sh
-2. Create credentials: ./scripts/create_agent.sh agent1 secret123
+2. Create credentials: ./scripts/create_agent.sh jayden 290405
 """
 
 import asyncio
@@ -28,7 +28,8 @@ class BasicAgent(Agent):
         """
 
         async def run(self):
-            print(f"🚀 [{self.agent.name}] Agent started at {datetime.now().strftime('%H:%M:%S')}")
+            agent_name = str(self.agent.jid).split('@')[0]
+            print(f"🚀 [{agent_name}] Agent started at {datetime.now().strftime('%H:%M:%S')}")
             print(f"   JID: {self.agent.jid}")
             print(f"   Available: {self.agent.is_alive()}")
 
@@ -45,19 +46,21 @@ class BasicAgent(Agent):
 
         async def run(self):
             self.counter += 1
+            agent_name = str(self.agent.jid).split('@')[0]
             timestamp = datetime.now().strftime('%H:%M:%S')
-            print(f"💓 [{self.agent.name}] Heartbeat #{self.counter} at {timestamp}")
+            print(f"💓 [{agent_name}] Heartbeat #{self.counter} at {timestamp}")
             
             # Stop after 5 heartbeats for demonstration
             if self.counter >= 5:
-                print(f"🛑 [{self.agent.name}] Stopping after {self.counter} heartbeats")
+                print(f"🛑 [{agent_name}] Stopping after {self.counter} heartbeats")
                 self.kill()
                 await self.agent.stop()
             
             await asyncio.sleep(self.period)
 
         async def on_end(self):
-            print(f"👋 [{self.agent.name}] Heartbeat behavior ended")
+            agent_name = str(self.agent.jid).split('@')[0]
+            print(f"👋 [{agent_name}] Heartbeat behavior ended")
 
     async def setup(self):
         """
@@ -82,14 +85,13 @@ async def main():
     Main function to create and run the agent.
     """
     # Agent credentials (create these first with ./scripts/create_agent.sh)
-    jid = "agent1@localhost"
-    password = "secret123"
+    jid = "jayden@localhost"
+    password = "290405"
 
     print(f"🔌 Connecting agent: {jid}")
     
     # Create the agent
     agent = BasicAgent(jid, password)
-    agent.name = "BasicAgent"
 
     try:
         # Start the agent
