@@ -166,7 +166,8 @@ async def main():
     agent = SensorAgent(jid, password)
 
     try:
-        await agent.start()
+        # verify_security=False to accept self-signed certs in dev environment
+        await agent.start(verify_security=False)
 
         # Keep the script alive while the agent is running
         while agent.is_alive():

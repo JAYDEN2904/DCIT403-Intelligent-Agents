@@ -129,11 +129,12 @@ async def main():
 
     try:
         # Start receiver first (so it's ready to receive)
-        await receiver.start()
+        # verify_security=False for self-signed certs in dev environment
+        await receiver.start(verify_security=False)
         await asyncio.sleep(1)
         
         # Start sender
-        await sender.start()
+        await sender.start(verify_security=False)
         
         # Wait for both agents to complete
         while receiver.is_alive() or sender.is_alive():

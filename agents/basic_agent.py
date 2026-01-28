@@ -94,8 +94,8 @@ async def main():
     agent = BasicAgent(jid, password)
 
     try:
-        # Start the agent
-        await agent.start()
+        # Start the agent (verify_security=False for self-signed certs in dev)
+        await agent.start(verify_security=False)
         
         # Wait for agent to complete its behaviors
         while agent.is_alive():
