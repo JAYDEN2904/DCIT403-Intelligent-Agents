@@ -1,0 +1,41 @@
+{
+  "name": "SPADE Agent Development Environment",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {}
+  },
+  
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.debugpy",
+        "esbenp.prettier-vscode"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.linting.enabled": true,
+        "editor.formatOnSave": true
+      }
+    }
+  },
+  
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  
+  "forwardPorts": [5222, 5280],
+  
+  "portsAttributes": {
+    "5222": {
+      "label": "XMPP Client",
+      "onAutoForward": "silent"
+    },
+    "5280": {
+      "label": "XMPP HTTP Admin",
+      "onAutoForward": "silent"
+    }
+  },
+  
+  "remoteUser": "vscode"
+}
