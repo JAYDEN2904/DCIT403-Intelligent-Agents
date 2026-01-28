@@ -129,12 +129,12 @@ async def main():
 
     try:
         # Start receiver first (so it's ready to receive)
-        # verify_security=False for self-signed certs in dev environment
-        await receiver.start(verify_security=False)
+        # auto_register=True to skip manual credential creation
+        await receiver.start(auto_register=True)
         await asyncio.sleep(1)
         
         # Start sender
-        await sender.start(verify_security=False)
+        await sender.start(auto_register=True)
         
         # Wait for both agents to complete
         while receiver.is_alive() or sender.is_alive():
@@ -156,4 +156,6 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    import spade
+    # Use SPADE's embedded XMPP server to avoid certificate issues
+    spade.run(main())

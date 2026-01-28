@@ -166,8 +166,8 @@ async def main():
     agent = SensorAgent(jid, password)
 
     try:
-        # verify_security=False to accept self-signed certs in dev environment
-        await agent.start(verify_security=False)
+        # Start with auto_register to skip manual credential creation
+        await agent.start(auto_register=True)
 
         # Keep the script alive while the agent is running
         while agent.is_alive():
@@ -186,6 +186,8 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    import spade
+    # Use SPADE's embedded XMPP server to avoid certificate issues
+    spade.run(main())
 
 

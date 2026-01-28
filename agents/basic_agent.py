@@ -84,7 +84,7 @@ async def main():
     """
     Main function to create and run the agent.
     """
-    # Agent credentials (create these first with ./scripts/create_agent.sh)
+    # Agent credentials - using embedded XMPP server, so any password works
     jid = "jayden@localhost"
     password = "290405"
 
@@ -94,8 +94,8 @@ async def main():
     agent = BasicAgent(jid, password)
 
     try:
-        # Start the agent (verify_security=False for self-signed certs in dev)
-        await agent.start(verify_security=False)
+        # Start the agent with auto_register to skip manual credential creation
+        await agent.start(auto_register=True)
         
         # Wait for agent to complete its behaviors
         while agent.is_alive():
@@ -113,4 +113,6 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    import spade
+    # Use SPADE's embedded XMPP server to avoid certificate issues
+    spade.run(main())
