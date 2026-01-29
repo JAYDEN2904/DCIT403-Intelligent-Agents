@@ -5,11 +5,6 @@ Implements:
 - A simulated disaster environment
 - A SensorAgent that periodically monitors conditions
 - Generation and logging of disaster events (percepts)
-
-Before running this agent:
-1. Start the XMPP server: ./scripts/start_xmpp.sh
-2. Create credentials for the sensor agent (only once):
-   ./scripts/create_agent.sh sensor 290405
 """
 
 import asyncio
@@ -103,9 +98,7 @@ class SensorAgent(Agent):
                 "logs", f"sensor_events_{timestamp}.log")
 
         async def log_event(self, percept: Dict[str, Any]) -> None:
-            """
-            Append a percept dictionary to the log file as a single line.
-            """
+        
             with open(self.log_file, "a", encoding="utf-8") as f:
                 f.write(f"{percept}\n")
 
@@ -113,18 +106,18 @@ class SensorAgent(Agent):
             self.step_count += 1
             agent_name = str(self.agent.jid).split("@")[0]
 
-            # 1. Get the next environment state (this is the "percept")
+            
             state = self.env.step()
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-            # 2. Build a percept record
+            
             percept = {
                 "timestamp": timestamp,
                 "agent": agent_name,
                 "state": asdict(state),
             }
 
-            # 3. Print a human-readable log to the console
+            
             print(
                 f"👁️  [{agent_name}] Percept #{self.step_count} at {timestamp}")
             print(
@@ -134,10 +127,10 @@ class SensorAgent(Agent):
                 f"Accessible: {state.is_accessible}"
             )
 
-            # 4. Save raw event to file for later analysis / lab report
+            
             await self.log_event(percept)
 
-            # 5. Optionally, stop after some number of steps
+         
             if self.step_count >= self.max_steps:
                 print(
                     f"🛑 [{agent_name}] Reached {self.max_steps} percepts, stopping agent.")
@@ -145,7 +138,7 @@ class SensorAgent(Agent):
                 await self.agent.stop()
                 return
 
-            # 6. Wait before the next perception cycle
+            
             await asyncio.sleep(self.period)
 
     async def setup(self):
@@ -179,7 +172,7 @@ async def main():
         # Start the agent with auto_register to skip manual credential creation
         await agent.start(auto_register=True)
 
-        # Keep the script alive while the agent is running
+    
         while agent.is_alive():
             await asyncio.sleep(1)
 
@@ -197,5 +190,4 @@ async def main():
 
 if __name__ == "__main__":
     import spade
-    # Use SPADE's embedded XMPP server to avoid certificate issues
     spade.run(main())

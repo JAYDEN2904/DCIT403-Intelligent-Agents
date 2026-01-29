@@ -1,22 +1,13 @@
 """
 LAB 1: Basic SPADE Agent
 ========================
-A simple SPADE agent that demonstrates:
-- Agent creation and connection
-- Cyclic behavior implementation
-- Agent lifecycle management
-
-Before running this agent:
-1. Start the XMPP server: ./scripts/start_xmpp.sh
-2. Create credentials: ./scripts/create_agent.sh jayden 290405
+A simple SPADE agent that demonstrates basic agent creation and connection.
 """
 
 import asyncio
-import os
-import ssl
 import warnings
 from spade.agent import Agent
-from spade.behaviour import CyclicBehaviour, OneShotBehaviour
+from spade.behaviour import OneShotBehaviour
 from datetime import datetime
 
 # Suppress SSL warnings for local development
@@ -25,67 +16,31 @@ warnings.filterwarnings('ignore')
 
 class BasicAgent(Agent):
     """
-    A basic SPADE agent with demonstration behaviors.
+    A simple SPADE agent that prints a message when it starts.
     """
 
-    class HelloBehaviour(OneShotBehaviour):
+    class StartupBehaviour(OneShotBehaviour):
         """
-        A one-shot behavior that runs once when the agent starts.
+        A simple behavior that runs once when the agent starts.
         """
 
         async def run(self):
             agent_name = str(self.agent.jid).split('@')[0]
-            print(
-                f"🚀 [{agent_name}] Agent started at {datetime.now().strftime('%H:%M:%S')}")
+            print(f"✅ [{agent_name}] Agent is running!")
             print(f"   JID: {self.agent.jid}")
-            print(f"   Available: {self.agent.is_alive()}")
-
-    class HeartbeatBehaviour(CyclicBehaviour):
-        """
-        A cyclic behavior that runs repeatedly.
-        Demonstrates continuous agent activity.
-        """
-
-        def __init__(self, period: int = 5):
-            super().__init__()
-            self.period = period
-            self.counter = 0
-
-        async def run(self):
-            self.counter += 1
-            agent_name = str(self.agent.jid).split('@')[0]
-            timestamp = datetime.now().strftime('%H:%M:%S')
-            print(f"💓 [{agent_name}] Heartbeat #{self.counter} at {timestamp}")
-
-            # Stop after 5 heartbeats for demonstration
-            if self.counter >= 5:
-                print(
-                    f"🛑 [{agent_name}] Stopping after {self.counter} heartbeats")
-                self.kill()
-                await self.agent.stop()
-
-            await asyncio.sleep(self.period)
-
-        async def on_end(self):
-            agent_name = str(self.agent.jid).split('@')[0]
-            print(f"👋 [{agent_name}] Heartbeat behavior ended")
+            print(f"   Started at: {datetime.now().strftime('%H:%M:%S')}")
 
     async def setup(self):
         """
         Setup method called when the agent starts.
-        Add behaviors here.
         """
         print(f"\n{'='*50}")
         print(f"   SPADE Basic Agent - Lab 1")
         print(f"{'='*50}\n")
 
-        # Add the hello behavior (runs once)
-        hello_behaviour = self.HelloBehaviour()
-        self.add_behaviour(hello_behaviour)
-
-        # Add the heartbeat behavior (runs continuously)
-        heartbeat_behaviour = self.HeartbeatBehaviour(period=2)
-        self.add_behaviour(heartbeat_behaviour)
+        # Add the startup behavior
+        startup_behaviour = self.StartupBehaviour()
+        self.add_behaviour(startup_behaviour)
 
 
 async def main():
@@ -105,7 +60,7 @@ async def main():
         # Start the agent with auto_register to skip manual credential creation
         await agent.start(auto_register=True)
 
-        # Wait for agent to complete its behaviors
+        # Keep the agent running
         while agent.is_alive():
             await asyncio.sleep(1)
 
