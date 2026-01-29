@@ -1,7 +1,10 @@
 """
 LAB 1: Basic SPADE Agent
 ========================
-A simple SPADE agent that demonstrates basic agent creation and connection.
+A simple SPADE agent that demonstrates:
+- Agent creation and connection
+- Cyclic behavior implementation
+- Agent lifecycle management
 """
 
 import asyncio
