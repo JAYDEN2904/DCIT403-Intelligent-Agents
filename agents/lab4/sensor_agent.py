@@ -81,7 +81,7 @@ class CommunicatingSensorAgent(Agent):
         agent_name = str(self.jid).split("@")[0]
         print(f"🚀 [{agent_name}] Sensor agent started")
         
-        # Create Lab 2's DisasterEnvironment
+        
         env = DisasterEnvironment()
         
         behaviour = self.SenseAndReportBehaviour(
