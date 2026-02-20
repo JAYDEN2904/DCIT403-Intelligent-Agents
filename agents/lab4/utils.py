@@ -32,3 +32,4 @@ class MessageLogger:
         print(f"   Performative: {perf.upper()}")
         print(f"   Content: {msg.body[:60]}..." if len(msg.body) > 60 else f"   Content: {msg.body}")
 
+

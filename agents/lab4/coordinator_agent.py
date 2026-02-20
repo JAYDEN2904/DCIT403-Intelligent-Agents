@@ -16,7 +16,7 @@ from spade.template import Template
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from rescue_agent import RescueGoals
+from lab3 import RescueGoals
 
 # Import from this package
 from .utils import Performative, MessageLogger
@@ -111,4 +111,5 @@ class CoordinatorAgent(Agent):
         
         self.add_behaviour(alert_behaviour, inform_template)
         self.add_behaviour(response_behaviour)
+
 

@@ -91,3 +91,4 @@ class CommunicatingRescueAgent(Agent):
         behaviour = self.HandleRequestBehaviour()
         self.add_behaviour(behaviour, request_template)
 
+

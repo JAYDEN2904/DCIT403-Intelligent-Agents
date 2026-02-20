@@ -8,6 +8,7 @@ Implements:
 """
 
 import asyncio
+import json
 import os
 import random
 import warnings
@@ -17,6 +18,7 @@ from typing import Dict, Any
 
 from spade.agent import Agent
 from spade.behaviour import CyclicBehaviour
+from spade.message import Message
 
 # Disable SSL certificate verification warnings for local development
 warnings.filterwarnings('ignore', message='.*certificate.*')
@@ -81,15 +83,21 @@ class SensorAgent(Agent):
     """
     SensorAgent that periodically monitors the DisasterEnvironment
     and logs percepts (environment snapshots).
+    Optionally sends percepts to RescueAgent when rescue_jid is set.
     """
 
+    def __init__(self, jid, password, rescue_jid: str = None):
+        super().__init__(jid, password)
+        self._rescue_jid = rescue_jid
+
     class SenseEnvironmentBehaviour(CyclicBehaviour):
-        def __init__(self, env: DisasterEnvironment, period: int = 3, max_steps: int = 15):
+        def __init__(self, env: DisasterEnvironment, period: int = 3, max_steps: int = 15, rescue_jid: str = None):
             super().__init__()
             self.env = env
             self.period = period
             self.max_steps = max_steps
             self.step_count = 0
+            self.rescue_jid = rescue_jid  # If set, send percepts to RescueAgent (Lab 3)
 
             # Prepare logging directory / file
             os.makedirs("logs", exist_ok=True)
@@ -130,6 +138,15 @@ class SensorAgent(Agent):
             
             await self.log_event(percept)
 
+            # Send percept to RescueAgent if rescue_jid is set
+            if self.rescue_jid:
+                msg = Message(to=self.rescue_jid)
+                msg.set_metadata("performative", "inform")
+                msg.set_metadata("ontology", "disaster-response")
+                msg.body = json.dumps(percept)
+                await self.send(msg)
+                print(f"   📤 Sent sensor report to RescueAgent")
+
          
             if self.step_count >= self.max_steps:
                 print(
@@ -152,9 +169,10 @@ class SensorAgent(Agent):
 
         env = DisasterEnvironment()
 
-        # Period in seconds between perceptions; adjust as needed
+        # Period in seconds between perceptions; 
+        rescue_jid = getattr(self, "_rescue_jid", None)
         behaviour = self.SenseEnvironmentBehaviour(
-            env=env, period=2, max_steps=20)
+            env=env, period=2, max_steps=20, rescue_jid=rescue_jid)
         self.add_behaviour(behaviour)
 
 
