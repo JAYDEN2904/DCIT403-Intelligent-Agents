@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from sensor_agent import DisasterEnvironment, EnvironmentState
 
 # Import from this package
-from .utils import Performative, MessageLogger
+from .utils import Performative, MessageLogger, derive_disaster_info
 
 warnings.filterwarnings('ignore')
 
@@ -62,6 +62,11 @@ class CommunicatingSensorAgent(Agent):
                     "timestamp": datetime.now().strftime("%H:%M:%S")
                 }
                 
+                # Derive explicit disaster type from metrics
+                disaster_type, severity = derive_disaster_info(event)
+                event["disaster_type"] = disaster_type
+                event["severity"] = severity
+                
                 # Create INFORM message (FIPA-ACL)
                 msg = Message(to=self.coordinator_jid)
                 msg.set_metadata("performative", Performative.INFORM)
@@ -71,7 +76,8 @@ class CommunicatingSensorAgent(Agent):
                 
                 await self.send(msg)
                 MessageLogger.log(agent_name, "SENT", msg)
-                print(f"   Environment: Damage={state.damage_severity}, Water={state.water_level:.2f}m, Fire={state.fire_risk}\n")
+                print(f"   Disaster: {disaster_type} (severity: {severity})")
+                print(f"   Metrics: Damage={state.damage_severity}, Water={state.water_level:.2f}m, Fire={state.fire_risk}\n")
             
             print(f"🔍 [{agent_name}] Monitoring complete, sent {self.num_readings} readings")
             await asyncio.sleep(2)

@@ -48,6 +48,8 @@ class CoordinatorAgent(Agent):
                 
                 # Parse the sensor reading
                 reading = json.loads(msg.body)
+                disaster_type = reading.get("disaster_type", "EMERGENCY")
+                severity = reading.get("severity", "low")
                 
                 # Determine goals based on severity (using Lab 3's RescueGoals)
                 if reading["damage_severity"] > 50 or reading["fire_risk"] > 50:
@@ -73,6 +75,7 @@ class CoordinatorAgent(Agent):
                 
                 await self.send(request_msg)
                 MessageLogger.log(agent_name, "SENT", request_msg)
+                print(f"   Disaster: {disaster_type} (severity: {severity})")
                 print(f"   Goals assigned: {goals} ({priority} priority)\n")
             
             # Stop after receiving 3 alerts

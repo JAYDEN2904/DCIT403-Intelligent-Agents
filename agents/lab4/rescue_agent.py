@@ -43,9 +43,12 @@ class CommunicatingRescueAgent(Agent):
                 # Parse the task
                 task = json.loads(msg.body)
                 sender_jid = str(msg.sender)
+                reading = task.get("sensor_reading", {})
+                disaster_type = reading.get("disaster_type", "EMERGENCY")
+                severity = reading.get("severity", "low")
                 
-                # Show which Lab 3 goals were assigned
-                print(f"   Goals from Lab 3: {task.get('goals', [])}")
+                print(f"   Disaster: {disaster_type} (severity: {severity})")
+                print(f"   Goals: {task.get('goals', [])}")
                 
                 # Decide whether to accept (80% chance if not busy)
                 if not self.is_busy and random.random() > 0.2:
